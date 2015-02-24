@@ -1,0 +1,30 @@
+ffmpeg version 2.5.4 Copyright (c) 2000-2015 the FFmpeg developers. 
+  built on Feb 13 2015 17:05:44 with gcc 4.9.2 (GCC) 20150204 (prerelease). 
+  configuration: --prefix=/usr --disable-debug --disable-static --disable-stripping --enable-avisynth --enable-avresample --enable-fontconfig --enable-gnutls --enable-gpl --enable-libass --enable-libbluray --enable-libfreetype --enable-libfribidi --enable-libgsm --enable-libmodplug --enable-libmp3lame --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg --enable-libopus --enable-libpulse --enable-librtmp --enable-libschroedinger --enable-libspeex --enable-libtheora --enable-libv4l2 --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-libxvid --enable-runtime-cpudetect --enable-shared --enable-swresample --enable-vdpau --enable-version3 --enable-x11grab. 
+  libavutil      54. 15.100 / 54. 15.100. 
+  libavcodec     56. 13.100 / 56. 13.100. 
+  libavformat    56. 15.102 / 56. 15.102. 
+  libavdevice    56.  3.100 / 56.  3.100. 
+  libavfilter     5.  2.103 /  5.  2.103. 
+  libavresample   2.  1.  0 /  2.  1.  0. 
+  libswscale      3.  1.101 /  3.  1.101. 
+  libswresample   1.  1.100 /  1.  1.100. 
+  libpostproc    53.  3.100 / 53.  3.100. 
+[h264 @ 0x7f9f664f2960] non-existing SPS 0 referenced in buffering period. 
+    Last message repeated 1 times. 
+[h264 @ 0x7f9f666f9200] non-existing SPS 0 referenced in buffering period. 
+Input #0, hls,applehttp, from 'http://svtplay2p-f.akamaihd.net/i/se/open/20141225/1355965-001A/EPISOD-1355965-001A-ad72e2d65c68de64_,892,144,252,360,540,1584,2700,.mp4.csmil/index_6_av.m3u8?null=':. 
+Input
+  Duration: 00:12:30.00, start: 10.099667, bitrate: 0 kb/s. input
+  Program 0 . input
+    Metadata:. input
+      variant_bitrate : 0. input
+    Stream #0:0: Video: h264 (High) ([27][0][0][0] / 0x001B), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 90k tbn, 50 tbc. input
+    Stream #0:1: Audio: aac (HE-AAC) ([15][0][0][0] / 0x000F), 48000 Hz, stereo, fltp, 95 kb/s. input
+    Stream #0:2: Data: timed_id3 (ID3  / 0x20334449). input
+Output #0, matroska, to 'Katten i hatten vet allt om ditten och datten - Avsnitt 1.mkv':. input
+Output
+  Metadata:. output
+    encoder         : Lavf56.15.102. output
+    Stream #0:0: Video: h264 (H264 / 0x34363248), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=. output
+Total time: 750.0
