@@ -45,6 +45,3 @@ end
   #puts "Ctrl-C pressed. Exiting.\n"
   #throw :ctrl_c
 #}
-
-$baseurl = "http://www.svtplay.se/"
-#$barnurl = "http://www.svt.se/barnkanalen/barnplay/"

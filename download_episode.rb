@@ -8,6 +8,8 @@ require 'shellwords'
 require 'io/console'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
+require_relative 'lib/commandline-util'
+require_relative 'lib/util'
 
 options, optparse = parse_args
 
@@ -23,7 +25,7 @@ end
 
 catch :ctrl_c do
   begin
-    download_episode options, ARGV[0]
+    SVT_PLAY::download_episode options, ARGV[0]
     exit
   rescue SystemExit => e
     exit

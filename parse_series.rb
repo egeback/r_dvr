@@ -8,6 +8,8 @@ require 'shellwords'
 require 'io/console'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
+require_relative 'lib/commandline-util'
+require_relative 'lib/util'
 
 options, optparse = parse_args
 
@@ -26,7 +28,7 @@ end
 
 #catch :ctrl_c do
   begin
-    downloaded_count, excluded, total_count = download_episodes options, url, ARGV[0]
+    downloaded_count, excluded, total_count = SVT_PLAY::download_episodes options, url, ARGV[0]
     puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"
     exit
   rescue SystemExit => e
