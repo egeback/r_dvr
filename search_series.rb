@@ -8,6 +8,7 @@ require 'shellwords'
 require 'io/console'
 require 'blurrily'
 require 'blurrily/map'
+require_relative 'lib/r_dvr'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
 require_relative 'lib/commandline-util'
@@ -35,7 +36,15 @@ if(ARGV.length<1)
 end
 
 begin
-  downloaded_count, excluded, total_count = Svt_play::search_series options, ARGV[0]
+  serie = Svt_play::search_series options, ARGV[0]
+
+  options[:folder] = "#{options[:folder]}#{serie.title}"
+
+  if !is_folder "#{options[:folder]}"
+    exit if !(create_folder? options[:folder])
+  end
+
+  downloaded_count, total_count = Svt_play::download_episodes options, serie.url, serie.title
   puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"
   exit
 rescue SignalException => e

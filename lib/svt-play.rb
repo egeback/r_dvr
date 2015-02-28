@@ -4,9 +4,10 @@ require_relative 'svt-play/model/episode'
 require_relative 'svt-play/download'
 require_relative 'svt-play/parse'
 require_relative 'svt-play/search'
+require_relative 'r_dvr'
 require 'uri'
 
-module SVT_PLAY
+module Svt_play
   $baseurl = "http://www.svtplay.se/"
   #$barnurl = "http://www.svt.se/barnkanalen/barnplay/"
 

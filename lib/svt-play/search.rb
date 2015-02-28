@@ -146,12 +146,6 @@ module Svt_play
       serie = series[search_results[c.to_i-1][0]]
     end
 
-    options[:folder] = "#{options[:folder]}#{serie.title}"
-
-    if !is_folder "#{options[:folder]}"
-      create_folder? options[:folder]
-    end
-
-    downloaded_count, total_count = download_episodes options, serie.url, serie.title
+    serie
   end
 end

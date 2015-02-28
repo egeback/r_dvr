@@ -28,10 +28,9 @@ def create_folder? destination
   STDOUT.flush
   c = STDIN.getch
   puts c
-  if !(c === "y" or c === "Y")
-    exit
-  end
+  return false if !(c === "y" or c === "Y")
   Dir.mkdir(destination)
+  true
 end
 
 class String

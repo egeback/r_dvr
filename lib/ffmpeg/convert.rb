@@ -62,6 +62,7 @@ module FFMpeg
         max = new_file.duration*1.02
         min = new_file.duration*0.98
         #puts "Duration #{new_file.duration}, min #{min}, max #{max}, new_file.duration > min: #{new_file.duration > min}, new_file.duration < max: #{new_file.duration < max}"
+        puts "File exists" if @options[:verbose]
         raise "File exists" if new_file.duration > min && new_file.duration < max
       end
 
@@ -70,7 +71,7 @@ module FFMpeg
       elsif @options != nil
         options = ""
         @options.each do |key, value|
-          options += " -#{key} #{value}" if key != :force
+          options += " -#{key} #{value}" if !(key == :force || key == :verbose)
         end
         output = Shellwords.escape(@output)
         #Fix faulty escape

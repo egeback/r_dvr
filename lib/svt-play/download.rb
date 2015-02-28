@@ -1,14 +1,4 @@
 module Svt_play
-  def Svt_play.download_stream stream, output, force, title
-    FFMpeg.convert(stream.url, output, {:acodec => 'mp3', :ab => '160k', :vcodec => 'copy', :force => force}){ |progress, frame, time, fps, bitrate, total_time|
-      output = ""
-      output = "#{title}: " if title!=nil
-      print "\r#{output}                                                                                                               "
-      print "\r#{output}Progress: #{progress}%, frame: #{frame}, time: #{time}, fps: #{fps}, bitrate: #{bitrate}kbit/s. Total time: #{total_time}"
-    }
-    puts ""
-  end
-
   def Svt_play.download_episode options, url
     return download_episode_barn options, url, title if url.include? 'barnkanalen'
     download_episode_svt_play options, url
@@ -65,7 +55,7 @@ module Svt_play
 
         #puts "Bandwith: #{(highest_bandwidth_url streams).bandwidth}" if options[:verbose]
 
-        download_stream streams[streams.length-1], "#{options[:folder]}#{title}.mkv", options[:force], title
+        R_dvr::download_stream streams[streams.length-1], "#{options[:folder]}#{title}.mkv", options[:force], title, options[:verbose]
       end
     }
   end
@@ -102,7 +92,7 @@ module Svt_play
 
           puts "Bandwith: #{(highest_bandwidth_url streams).bandwidth}" if options[:verbose]
 
-          download_stream streams[streams.length-1], "#{options[:folder]}#{title}.mkv", options[:force], title
+          R_dvr::download_stream streams[streams.length-1], "#{options[:folder]}#{title}.mkv", options[:force], title, options[:verbose]
         end
       }
     end

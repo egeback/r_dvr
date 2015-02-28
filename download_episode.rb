@@ -6,6 +6,7 @@ require 'json'
 require 'optparse'
 require 'shellwords'
 require 'io/console'
+require_relative 'lib/r_dvr'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
 require_relative 'lib/commandline-util'
@@ -23,15 +24,13 @@ if options[:folder]!=nil and !is_folder options[:folder]
   exit
 end
 
-catch :ctrl_c do
-  begin
-    SVT_PLAY::download_episode options, ARGV[0]
-    exit
-  rescue SystemExit => e
-    exit
-  rescue Exception
-    puts e.message
-    print detail.backtrace.join("\n")
-  end
+
+begin
+  Svt_play::download_episode options, ARGV[0]
+  exit
+rescue SystemExit => e
+  exit
+rescue Exception
+  puts e.message
+  print detail.backtrace.join("\n")
 end
-#Clean up

@@ -6,6 +6,7 @@ require 'json'
 require 'optparse'
 require 'shellwords'
 require 'io/console'
+require_relative 'lib/r_dvr'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
 require_relative 'lib/commandline-util'
@@ -26,17 +27,14 @@ else
   url = "#{url}#{ARGV[0]}"
 end
 
-#catch :ctrl_c do
-  begin
-    downloaded_count, excluded, total_count = SVT_PLAY::download_episodes options, url, ARGV[0]
-    puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"
-    exit
-  rescue SystemExit => e
-    exit
-  rescue Exception
-    puts e.message
-    print detail.backtrace.join("\n")
-    exit
-  end
-#end
-#Clean up
+begin
+  downloaded_count, excluded, total_count = Svt_play::download_episodes options, url, ARGV[0]
+  puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"
+  exit
+rescue SystemExit => e
+  exit
+rescue Exception
+  puts e.message
+  print detail.backtrace.join("\n")
+  exit
+end

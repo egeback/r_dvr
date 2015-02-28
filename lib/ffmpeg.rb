@@ -3,7 +3,7 @@ require_relative 'ffmpeg/output_processor'
 require_relative 'ffmpeg/io_patch'
 require_relative 'ffmpeg/movie'
 
-module FFMPEG
+module FFMpeg
   # Set the path of the ffmpeg binary.
   # Can be useful if you need to specify a path such as /usr/local/bin/ffmpeg
   #
