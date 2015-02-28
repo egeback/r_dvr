@@ -1,0 +1,8 @@
+require_relative 'svt-play/model/stream'
+require_relative 'svt-play/model/series'
+require_relative 'svt-play/model/episode'
+require_relative 'svt-play/download'
+require_relative 'svt-play/parse'
+require_relative 'svt-play/commandline-util'
+require_relative 'svt-play/util'
+require_relative 'svt-play/search'

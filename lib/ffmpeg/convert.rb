@@ -54,13 +54,23 @@ module FFMpeg
     def execute
       # usage: ffmpeg [options] [[infile options] -i infile]...
       #                         {[outfile options] outfile}...
+      if (!@options[:force] and exists @output)
+        #puts "'#{options[:folder]}#{title}.mkv' exist skipping" if options[:verbose]
+        existing_file = FFMpeg::Movie.new @output
+        new_file = FFMpeg::Movie.new @input
+        #puts "#{existing_file.duration}, #{new_file.duration}"
+        max = new_file.duration*1.02
+        min = new_file.duration*0.98
+        #puts "Duration #{new_file.duration}, min #{min}, max #{max}, new_file.duration > min: #{new_file.duration > min}, new_file.duration < max: #{new_file.duration < max}"
+        raise "File exists" if new_file.duration > min && new_file.duration < max
+      end
 
       cmd = if @options[:offset]
         offset_command
       elsif @options != nil
         options = ""
         @options.each do |key, value|
-          options += " -#{key} #{value}"
+          options += " -#{key} #{value}" if key != :force
         end
         output = Shellwords.escape(@output)
         #Fix faulty escape
@@ -72,77 +82,94 @@ module FFMpeg
       end
 
       @@timeout = 30
-      @output = ""
+      output = ""
       cmd = cmd.join(" ")
-      puts cmd
+      #puts cmd
 
-      Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
-        @started = true
-        begin
-          yield(0.0) if block_given?
-          next_line = Proc.new do |line|
-            #fix_encoding(line)
-            #process_output_line(line)
+      begin
+        Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+          @started = true
+          begin
+            yield(0.0) if block_given?
+            next_line = Proc.new do |line|
+              #fix_encoding(line)
+              #process_output_line(line)
 
-            #process start.
-            if line =~ /^ffmpeg/i
-              line.split("\n").each {|line|
-              if line =~ /Press \[q\] to stop encoding/
-                 self.capturing = :progress
-                elsif line =~ /^Input.*from/i
-                  self.capturing = :input
-                elsif line =~ /^Output.*to/i
-                  self.capturing = :output
-                elsif line =~ /\s*duration: (\d+):(\d+):(\d+.\d+)/i
-                  self.total_time = ($1.to_i * 3600) + ($2.to_i * 60) + $3.to_f if self.capturing_input?
-                elsif line =~ /^\s*stream.*video:.*\s+([0-9.]+)\s*fps/i
-                  if self.capturing_input?
-                    self.input_fps = $1.to_f
-                    self.total_frames = self.input_fps * self.total_time
+              #process start.
+              if line =~ /^ffmpeg/i
+                line.split("\n").each {|line|
+                if line =~ /Press \[q\] to stop encoding/
+                   self.capturing = :progress
+                  elsif line =~ /^Input.*from/i
+                    self.capturing = :input
+                  elsif line =~ /^Output.*to/i
+                    self.capturing = :output
+                  elsif line =~ /\s*duration: (\d+):(\d+):(\d+.\d+)/i
+                    self.total_time = ($1.to_i * 3600) + ($2.to_i * 60) + $3.to_f if self.capturing_input?
+                  elsif line =~ /^\s*stream.*video:.*\s+([0-9.]+)\s*fps/i
+                    if self.capturing_input?
+                      self.input_fps = $1.to_f
+                      self.total_frames = self.input_fps * self.total_time
+                    end
                   end
-                end
-              }
+                }
+              end
+
+
+              if line =~ /fps=(\d+)/
+                #\s*(\d+)/i
+                fps = $1.to_i
+              else
+                fps = 0
+              end
+              if line =~ /frame=\s*(\d+)/i
+                frame = $1.to_i
+              else
+                frame = 0
+              end
+              if line =~ /bitrate=\s*(\d+.\d+)/i
+                bitrate = $1.to_f
+              else
+                bitrate = 0
+              end
+              if line =~ /ime=(\d+):(\d+):(\d+.\d+)/ # ffmpeg 0.8 and above style
+                time = ($1.to_i * 3600) + ($2.to_i * 60) + $3.to_f
+              else # better make sure it wont blow up in case of unexpected output
+                time = 0.0
+              end
+              progress = ((time/self.total_time)*100).round(2) #/ @movie.duration
+              yield(progress, frame, time.round(2), fps, bitrate, self.total_time, self.total_frames) if block_given?
+
+              output << line
+            end
+
+            begin
+              if @@timeout
+                #stderr.each_with_timeout(wait_thr.pid, @@timeout, 'size=', &next_line)
+                stderr.each_with_timeout(wait_thr.pid, @@timeout, 'q=', &next_line)
+              else
+                stderr.each('size=', &next_line)
+              end
+            rescue SignalException => e
+              if File.exists? @output
+                puts "\nRemoving #{@output}."
+                File.delete @output
+              end
+              raise e
             end
 
 
-            if line =~ /fps=(\d+)/
-              #\s*(\d+)/i
-              fps = $1.to_i
-            else
-              fps = 0
-            end
-            if line =~ /frame=\s*(\d+)/i
-              frame = $1.to_i
-            else
-              frame = 0
-            end
-            if line =~ /bitrate=\s*(\d+.\d+)/i
-              bitrate = $1.to_f
-            else
-              bitrate = 0
-            end
-            if line =~ /ime=(\d+):(\d+):(\d+.\d+)/ # ffmpeg 0.8 and above style
-              time = ($1.to_i * 3600) + ($2.to_i * 60) + $3.to_f
-            else # better make sure it wont blow up in case of unexpected output
-              time = 0.0
-            end
-            progress = (time/self.total_time).round(2) #/ @movie.duration
-            yield(progress, frame, time.round(2), fps, bitrate, self.total_time, self.total_frames) if block_given?
-            #yield(progress, self.frame) if block_given?
+          rescue Timeout::Error => e
+            FFMPEG.logger.error "Process hung...\n@command\n#{@command}\nOutput\n#{@output}\n"
+            raise Error, "Process hung. Full output: #{@output}"
           end
-
-
-          if @@timeout
-            #stderr.each_with_timeout(wait_thr.pid, @@timeout, 'size=', &next_line)
-            stderr.each_with_timeout(wait_thr.pid, @@timeout, 'q=', &next_line)
-          else
-            stderr.each('size=', &next_line)
-          end
-
-        rescue Timeout::Error => e
-          FFMPEG.logger.error "Process hung...\n@command\n#{@command}\nOutput\n#{@output}\n"
-          raise Error, "Process hung. Full output: #{@output}"
         end
+      rescue SignalException => e
+        if File.exists? @output
+          puts "\nRemoving #{@output}."
+          File.delete @output
+        end
+        raise e
       end
     end
 
