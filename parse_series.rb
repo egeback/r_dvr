@@ -9,7 +9,6 @@ require 'io/console'
 require_relative 'lib/r_dvr'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
-require_relative 'lib/commandline-util'
 require_relative 'lib/util'
 
 options, optparse = parse_args
@@ -28,7 +27,7 @@ else
 end
 
 begin
-  downloaded_count, excluded, total_count = Svt_play::download_episodes options, url, ARGV[0]
+  downloaded_count, excluded, total_count = R_dvr::download_episodes options, url, ARGV[0]
   puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"
   exit
 rescue SystemExit => e

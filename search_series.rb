@@ -11,13 +11,14 @@ require 'blurrily/map'
 require_relative 'lib/r_dvr'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
+require_relative 'lib/tv4play'
 require_relative 'lib/commandline-util'
 require_relative 'lib/util'
 
 options, optparse = parse_args
 
 begin
-  mandatory = [:folder]
+  mandatory = [:folder, :service]
   missing = mandatory.select{ |param| options[param].nil? }
   if not missing.empty?
     puts "Missing options: #{missing.join(', ')}"
@@ -36,15 +37,16 @@ if(ARGV.length<1)
 end
 
 begin
-  serie = Svt_play::search_series options, ARGV[0]
 
-  options[:folder] = "#{options[:folder]}#{serie.title}"
+  program = R_dvr.search_program options, ARGV[0]
+
+  options[:folder] = "#{options[:folder]}#{program.title}"
 
   if !is_folder "#{options[:folder]}"
     exit if !(create_folder? options[:folder])
   end
 
-  downloaded_count, total_count = Svt_play::download_episodes options, serie.url, serie.title
+  downloaded_count, excluded, total_count = R_dvr::download_episodes options, program.url, program.title
   puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"
   exit
 rescue SignalException => e

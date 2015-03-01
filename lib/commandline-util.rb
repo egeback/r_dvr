@@ -16,6 +16,11 @@ def parse_args
       options[:url] = url
     end
 
+    options[:service] = nil
+    opts.on( '-s', '--service SERVICE', 'Service name. eg. svtplay, tv4play' ) do |service|
+      options[:service] = service
+    end
+
     options[:exclude] = false
     options[:exclude_string] = nil
     opts.on( '-e', '--exclude EXCLUDE', 'Exclude download which contains string' ) do |exclude|

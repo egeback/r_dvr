@@ -101,51 +101,14 @@ module Svt_play
 
     objects = page.css("li[class~='play_alphabetic-list__video-list-item']")
 
-    series = Array.new
+    programs = Array.new
     objects.each { |object|
-      s = Series.new
+      s = Program.new
       s.title = object.css('a').text
       s.url = "http://www.svtplay.se/#{object.css('a').first['href']}"
-      series.push s
+      programs.push s
     }
-
-    puts "Number of programs #{series.size} found." if options[:verbose]
-
-    #search_string
-    puts "Search text: #{search_string}" if options[:verbose]
-    serie = nil
-
-    map = Blurrily::Map.new
-    series.each_with_index { |s, index|
-      if(search_string===s.title)
-        serie = s
-        break
-      end
-      map.put(s.title, index)
-    }
-
-    if serie!=nil
-      #puts "Found series #{serie.title}"
-    elsif
-      p "Found:"
-
-      search_series = Array.new
-      search_results = map.find(search_string)
-
-      search_results.each_with_index { |item , index|
-        puts "#{index+1}. #{series[item[0]].title} (rating: #{item[1]})"
-        search_series.push item
-      }
-
-      c = nil
-      while
-        c = read_input
-        exit if c[0] === 'q'
-        break if c.numeric? and c.to_i > 0 and c.to_i <= search_results.size
-      end
-      serie = series[search_results[c.to_i-1][0]]
-    end
-
-    serie
+    programs
+    
   end
 end

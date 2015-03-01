@@ -76,6 +76,9 @@ module FFMpeg
         output = Shellwords.escape(@output)
         #Fix faulty escape
         output = output[1,output.length+1] if output[0,2] == '\~'
+        output["&ouml;"] = "ö"
+        puts output
+        exit
 
         [self.class.base_command, "-i", Shellwords.escape(@input), options, output, "-y"]
       else

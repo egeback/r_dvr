@@ -24,10 +24,11 @@ end
 
 def create_folder? destination
   puts "The folder '#{destination}' does not exist."
-  print "Do you want to create it (Y/n)? "
+  print "Do you want to create it (Y/n/q)? "
   STDOUT.flush
   c = STDIN.getch
   puts c
+  exit if !(c === "q" or c === "Q")
   return false if !(c === "y" or c === "Y")
   Dir.mkdir(destination)
   true
@@ -39,6 +40,14 @@ class String
     true if Float(self) rescue false
   end
 end
+
+
+#Load All models
+parent_dir = File.expand_path("..", File.dirname(__FILE__))
+Dir.glob(parent_dir + "/lib/model/*").each do |file|
+  require file
+end
+
 
 #trap("SIGINT") {
   #puts "Ctrl-C pressed. Exiting.\n"

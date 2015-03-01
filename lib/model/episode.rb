@@ -1,4 +1,4 @@
-module Svt_play
+#module R_dvr
   class Episode
     attr_accessor :title, :url, :img, :pubDate, :dcDate, :description
 
@@ -11,4 +11,4 @@ module Svt_play
           @description = description
     end
   end
-end
+#end
