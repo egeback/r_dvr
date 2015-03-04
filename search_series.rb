@@ -32,7 +32,7 @@ rescue OptionParser::InvalidOption, OptionParser::MissingArgument
 end
 
 if(ARGV.length<1)
-  puts @opts
+  puts optparse
   exit
 end
 
@@ -42,9 +42,11 @@ begin
 
   options[:folder] = "#{options[:folder]}#{program.title}"
 
-  if !is_folder "#{options[:folder]}"
-    exit if !(create_folder? options[:folder])
-  end
+  #if !is_folder "#{options[:folder]}"
+  #  exit if !(create_folder? options[:folder])
+  #end
+  puts program.title
+  puts program.url
 
   downloaded_count, excluded, total_count = R_dvr::download_episodes options, program.url, program.title
   puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"

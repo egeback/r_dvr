@@ -12,7 +12,7 @@ module Tv4play
       puts e.message
       exit
     end
-    puts json.first
+
     count = 0
     premium = 0
     programs = Array.new
@@ -25,6 +25,7 @@ module Tv4play
         program.id = object["nid"]
         program.description = object["description"]
         program.icon = object["program_image"]
+        program.url = "http://webapi.tv4play.se/play/video_assets?is_live=false&platform=web&node_nids=#{object["nid"]}"
         #puts "#{object["name"]}: #{object["nid"]}"
         programs.push program
         count+=1
@@ -32,6 +33,7 @@ module Tv4play
         premium+=1
       end
     }
+
     programs
     #puts count
     #puts premium
