@@ -28,6 +28,16 @@ module Svt_play
        break
     end
 
+    if title.index("&ouml;")
+      title["&ouml;"] = "ö"
+    end
+    if title.index("&auml;")
+      title["&auml;"] = "ä"
+    end
+    if title.index("&aring;")
+      title["&aring;"] = "å"
+    end
+
     page.scan(/data-json-href=\"(.*)\"/) do |match|
        url = "#{$baseurl}#{match.first}?output=json&format=json"
        break
@@ -47,6 +57,7 @@ module Svt_play
         url = ref["url"]
         puts "Url: #{url}" if options[:verbose]
         playlist = open(url)
+
         streams = parse_playlist playlist
 
         streams.sort! { |a,b| a.bandwidth <=> b.bandwidth }

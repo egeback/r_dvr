@@ -3,6 +3,7 @@ module Svt_play
     streams = Array.new
     stream = nil
     playlist.each do |i|
+      #puts i
       next if  i.match(/^\#EXTM3U/) #i[1, 6] == "EXTM3U"
       next if i.match(/^\#EXT-X-MEDIA:/)
       #Parse header

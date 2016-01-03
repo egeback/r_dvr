@@ -47,9 +47,11 @@ module Svt_play
 
   def Svt_play.search_episodes_svt_play options, url, search_string
     puts "Searching for #{search_string} on url: #{url}" if options[:verbose]
+    uri = URI.parse(url)
+    baseurl = "http://#{uri.host}"
 
     begin
-      page = open(url).read
+      page = Nokogiri::HTML(open(url)) #open(url).read
     rescue OpenURI::HTTPError => e
       puts e.message
       exit
@@ -57,6 +59,39 @@ module Svt_play
 
     url = nil
 
+
+    series = page.css("h1[class=play_title-page-info__header-title]").text
+
+    #part = page.css("div[id=play_js-tabpanel-more-episodes]")
+
+    objects = page.css("li[class='play_vertical-list__item play_js-vertical-list-item']") #("a[class=play_vertical-list__header-link]")
+    puts "Found #{objects.size} episode(s)" #if options[:verbose]
+
+    episodes = Array.new
+    objects.each { |object|
+      info = object.css("a[class=play_vertical-list__header-link]")
+
+      episode = Episode.new
+      episode.url = baseurl + info.first['href']
+      episode.title = info.text
+      episode.img = object.css("img").first['src']
+
+      episode.description = object.css("p[class=play_vertical-list__description-text]").first.text.delete!("\n").strip!
+      pubDate = object.css("p[class=play_vertical-list__meta-info]")
+      if pubDate.size > 0
+        episode.pubDate = pubDate.first.text.strip!
+        episode.pubDate = episode.pubDate.gsub('Publicerades ', '')
+      end
+      #puts episode.title + " #{episode.url} #{episode.pubDate}"
+      #episode.pubDate.delete!("\n").strip!
+      episodes.push episode
+=begin
+      episode.dcDate =
+=end
+    }
+    return series, episodes
+
+=begin
     page.scan(/<link rel=\"alternate\" type=\"application\/rss\+xml\" [^>]* href=\"(.*)\"/) do |match|
        url = match.first
     end
@@ -88,7 +123,7 @@ module Svt_play
     end
 
     return series, episodes
-
+=end
   end
 
   def Svt_play.search_series options, search_string
@@ -99,16 +134,16 @@ module Svt_play
       exit
     end
 
-    objects = page.css("li[class~='play_alphabetic-list__video-list-item']")
+    objects = page.css("li[class~='play_js-filterable-item play_link-list__item']")
 
     programs = Array.new
     objects.each { |object|
       s = Program.new
       s.title = object.css('a').text
-      s.url = "http://www.svtplay.se/#{object.css('a').first['href']}"
+      s.url = "http://www.svtplay.se#{object.css('a').first['href']}"
       programs.push s
     }
     programs
-    
+
   end
 end

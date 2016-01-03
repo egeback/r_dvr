@@ -73,12 +73,10 @@ module FFMpeg
         @options.each do |key, value|
           options += " -#{key} #{value}" if !(key == :force || key == :verbose)
         end
+
         output = Shellwords.escape(@output)
         #Fix faulty escape
         output = output[1,output.length+1] if output[0,2] == '\~'
-        output["&ouml;"] = "ö"
-        puts output
-        exit
 
         [self.class.base_command, "-i", Shellwords.escape(@input), options, output, "-y"]
       else
@@ -88,7 +86,6 @@ module FFMpeg
       @@timeout = 30
       output = ""
       cmd = cmd.join(" ")
-      #puts cmd
 
       begin
         Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
@@ -141,7 +138,12 @@ module FFMpeg
               else # better make sure it wont blow up in case of unexpected output
                 time = 0.0
               end
-              progress = ((time/self.total_time)*100).round(2) #/ @movie.duration
+              begin
+                progress = ((time/self.total_time)*100).round(2) #/ @movie.duration
+	      rescue
+		progress = -1
+	      end
+
               yield(progress, frame, time.round(2), fps, bitrate, self.total_time, self.total_frames) if block_given?
 
               output << line
