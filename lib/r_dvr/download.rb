@@ -12,8 +12,11 @@ module R_dvr
 
   def R_dvr.download_episodes options, url, search_string
     series, episodes_list = nil
+
     if Svt_play::supports? url
       series, episodes_list = Svt_play::search_episodes options, url, search_string
+    elsif Viasatplay::supports? url
+      series, episodes_list = Viasatplay::search_episodes options, url, search_string
     else
       puts "Url not supported."
     end
@@ -22,13 +25,21 @@ module R_dvr
     downloaded_count = 0
     excluded = 0
 
+    options[:folder]+="/" if options[:folder]!=nil && !(options[:folder][options[:folder].length-1] == '/')
+
     episodes_list.each { |episode|
       puts "Downloading #{series}: #{episode.title} from url #{episode.url}" if options[:verbose]
 
       begin
-        if Svt_play::supports? episode.url
-          Svt_play::download_episode options, episode.url
+        if Svt_play::supports? url
+          Svt_play::download_episode options, episode
           downloaded_count+=1
+        elsif Viasatplay::supports? url
+          Viasatplay::download_episode options, episode
+          downloaded_count+=1
+        else
+          puts "Url not supported for episodes_list."
+          break
         end
       rescue Exception => e
         excluded+=1 if e.message==="File excluded"

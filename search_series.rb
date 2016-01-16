@@ -12,6 +12,7 @@ require_relative 'lib/r_dvr'
 require_relative 'lib/ffmpeg'
 require_relative 'lib/svt-play'
 require_relative 'lib/tv4play'
+require_relative 'lib/viasatplay'
 require_relative 'lib/commandline-util'
 require_relative 'lib/util'
 
@@ -45,8 +46,6 @@ begin
   #if !is_folder "#{options[:folder]}"
   #  exit if !(create_folder? options[:folder])
   #end
-  puts program.title
-  puts program.url
 
   downloaded_count, excluded, total_count = R_dvr::download_episodes options, program.url, program.title
   puts "Downloaded #{downloaded_count}/#{total_count} (#{excluded} excluded)"

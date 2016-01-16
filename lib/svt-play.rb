@@ -10,6 +10,6 @@ module Svt_play
 
   def Svt_play.supports? url
     uri = URI.parse(url)
-    uri.host.include? 'www.svtplay.se'
+    uri.host.include? 'svtplay'
   end
 end

@@ -1,6 +1,6 @@
 #module R_dvr
   class Episode
-    attr_accessor :title, :url, :img, :pubDate, :dcDate, :description
+    attr_accessor :title, :url, :img, :pubDate, :dcDate, :description, :season, :index
 
     def initialize(title=nil, url=nil, img=nil, pubDate=nil, dcDate=nil, description=nil)
           @title = title

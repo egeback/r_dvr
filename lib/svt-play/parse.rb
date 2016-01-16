@@ -1,5 +1,6 @@
 module Svt_play
   def Svt_play.parse_playlist playlist
+    puts playlist
     streams = Array.new
     stream = nil
     playlist.each do |i|

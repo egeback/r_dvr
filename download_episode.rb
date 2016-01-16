@@ -24,7 +24,6 @@ if options[:folder]!=nil and !is_folder options[:folder]
   exit
 end
 
-
 begin
   Svt_play::download_episode options, ARGV[0]
   exit

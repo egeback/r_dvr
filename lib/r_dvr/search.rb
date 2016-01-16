@@ -7,6 +7,8 @@ module R_dvr
       programs = Svt_play::search_series options, ARGV[0]
     elsif options[:service] === "tv4play"
       programs = Tv4play::search_series options, ARGV[0]
+    elsif options[:service] === "viasatplay"
+      programs = Viasatplay::search_series options, ARGV[0]
     else
       puts "#{options[:service]} not supported."
       exit
@@ -48,7 +50,7 @@ module R_dvr
       end
       program = programs[search_results[c.to_i-1][0]]
     end
-
+    
     program
   end
 end

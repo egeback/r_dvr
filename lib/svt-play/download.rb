@@ -1,13 +1,25 @@
 module Svt_play
-  def Svt_play.download_episode options, url
-    return download_episode_barn options, url, title if url.include? 'barnkanalen'
-    download_episode_svt_play options, url
+  def Svt_play.download_episode options, episode
+    return download_episode_barn options, episode.url, title if episode.url.include? 'barnkanalen'
+    download_episode_svt_play options, episode
   end
 
-  def Svt_play.download_episode_svt_play options, url
+  def Svt_play.download_episode_svt_play options, episode
+    playlist = open(episode.url)
+    streams = parse_playlist playlist
+
+    streams.sort! { |a,b| a.bandwidth <=> b.bandwidth }
+    puts "Found stream:" if options[:verbose]
+    puts puts "#{streams[-1].bandwidth}: '#{streams[-1].url}'" if options[:verbose]
+
+    R_dvr::download_stream streams[-1], "#{options[:folder]}#{episode.title}.mkv", options[:force], episode.title, options[:verbose]
+  end
+=begin
     #Add tailing /
     options[:folder]+="/" if options[:folder]!=nil && !(options[:folder][options[:folder].length-1] == '/')
 
+
+    puts url
     begin
       page = open(url).read #Nokogiri::HTML(open(url))
     rescue OpenURI::HTTPError => e
@@ -49,9 +61,40 @@ module Svt_play
       puts page
     end
 
+    puts url
+
     json = open(url).read
 
     parsed = JSON.parse(json)
+    puts parsed
+
+    if parsed["video"]===nil
+      puts "nil"
+      #doc = Nokogiri::HTML(page)
+      #video = doc.css("div").css('video').each{|div|
+      #  puts div
+      #}
+      #[class='play_js-svtvideoplayer*']
+      #puts video
+      page.scan(/data-popout-href=\"(.*)\"/) do |match|
+        url = "http://www.svtplay.se#{match.first}"
+        puts "Url: #{url}" if options[:verbose]
+        playlist = open(url)
+
+        streams = parse_playlist playlist
+
+        streams.sort! { |a,b| a.bandwidth <=> b.bandwidth }
+        puts "Found streams:" if options[:verbose]
+        streams.each{|stream| puts "#{stream.bandwidth}: #{stream.url}"} if options[:verbose]
+
+        #puts "Bandwith: #{(highest_bandwidth_url streams).bandwidth}" if options[:verbose]
+
+        R_dvr::download_stream streams[streams.length-1], "#{options[:folder]}#{title}.mkv", options[:force], title, options[:verbose]
+      end
+      return
+    end
+
+
     parsed["video"]["videoReferences"].each{|ref|
       if ref["playerType"] == "ios"
         url = ref["url"]
@@ -109,6 +152,7 @@ module Svt_play
     end
     return 1
   end
+=end
 
   def Svt_play.download_episodes options, url, search_string
     series, episodes_list = search_episodes options, url, search_string
