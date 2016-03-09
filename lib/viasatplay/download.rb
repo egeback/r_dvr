@@ -6,8 +6,22 @@ module Viasatplay
     streams = Svt_play::parse_playlist playlist
 
     streams.sort! { |a,b| a.bandwidth <=> b.bandwidth }
+
     puts "Found streams:" if options[:verbose]
     streams.each{|stream| puts "#{stream.bandwidth}: #{stream.url}"} if options[:verbose]
+
+
+=begin
+    if streams[-1].url.include? "m3u8?null="
+      playlist = open(streams[-1].url)
+      #streams = Svt_play::parse_playlist playlist
+      stream = streams[-1]
+      stream.url = "'#{streams[-1].url}'"
+      streams = [stream]
+    end
+=end
+
+    puts streams[-1].url if options[:verbose]
 
     puts "Bandwith: #{(highest_bandwidth_url streams).bandwidth}" if options[:verbose]
 

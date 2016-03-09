@@ -1,14 +1,28 @@
 module Svt_play
   def Svt_play.parse_playlist playlist
-    puts playlist
     streams = Array.new
     stream = nil
+    split_file = false
+    next_f = false
     playlist.each do |i|
       #puts i
+      if i.match (/^\#EXT-X-TARGETDURATION/)
+        split_file = true
+        stream = Stream.new
+        stream.bandwidth = 0
+        stream.url = "concat:"
+      end
       next if  i.match(/^\#EXTM3U/) #i[1, 6] == "EXTM3U"
       next if i.match(/^\#EXT-X-MEDIA:/)
       #Parse header
-      if i.match(/^\#EXT-X-STREAM-INF:/)
+      if split_file
+        if i =~ /#EXTINF:/
+          next_f = true
+        elsif next_f
+          next_f = false
+          stream.url = stream.url + i.strip! + "|"
+        end
+      elsif i.match(/^\#EXT-X-STREAM-INF:/)
         stream = Stream.new
         metadata = i[i.index(",")+1,i.length+1]
         metadata = metadata.split(",")
@@ -21,6 +35,7 @@ module Svt_play
         streams.push stream
       end
     end
+    streams.push stream if split_file
     streams
   end
 end

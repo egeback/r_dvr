@@ -54,8 +54,6 @@ module Svt_play
 
   def Svt_play.search_episodes_svt_play options, url, search_string
     puts "Searching for #{search_string} on url: #{url}" if options[:verbose]
-    #uri = URI.parse(url)
-    #baseurl = "http://#{uri.host}"
 
     begin
       page = Nokogiri::HTML(open(url)) #open(url).read
@@ -111,87 +109,24 @@ module Svt_play
         episode.title = "#{series} S#{season}E#{index} #{title}"
         episode.title = episode.title.gsub(" ", ".")
       else
-        episode.title = series + lable
+        fixed = false
+        label.scan(/^Avsnitt (.*)/) do |match|
+          fixed = true
+          season = "01"
+          index = match.first
+          index = '0' + index if index.size < 2
+          episode.title = "#{series} S#{season}E#{index} #{title}"
+          episode.title = episode.title.gsub(" ", ".")
+        end
+        episode.title = series + " " +  label if !fixed
       end
-      #puts episode.url
+
       episodes.push episode
     }
 
     return series, episodes
 
   end
-
-=begin
-    #episodes_url = page.xpath("//navigationitem[@id='episodes']/url/text()")[0]
-    #puts episodes_url
-    #episodes_xml_data = XML.ObjectFromURL(episodes_url)
-
-
-
-    url = nil
-
-
-    series = page.css("h1[class=play_title-page-info__header-title]").text
-
-    #part = page.css("div[id=play_js-tabpanel-more-episodes]")
-
-    objects = page.css("li[class='play_vertical-list__item play_js-vertical-list-item']") #("a[class=play_vertical-list__header-link]")
-    puts "Found #{objects.size} episode(s)" #if options[:verbose]
-
-    episodes = Array.new
-    objects.each { |object|
-      info = object.css("a[class=play_vertical-list__header-link]")
-
-      episode = Episode.new
-      episode.url = baseurl + info.first['href']
-      episode.title = info.text
-      episode.img = object.css("img").first['src']
-
-      episode.description = object.css("p[class=play_vertical-list__description-text]").first.text.delete!("\n").strip!
-      pubDate = object.css("p[class=play_vertical-list__meta-info]")
-      if pubDate.size > 0
-        episode.pubDate = pubDate.first.text.strip!
-        episode.pubDate = episode.pubDate.gsub('Publicerades ', '')
-      end
-      #puts episode.title + " #{episode.url} #{episode.pubDate}"
-      #episode.pubDate.delete!("\n").strip!
-      episodes.push episode
-    }
-
-    page.scan(/<link rel=\"alternate\" type=\"application\/rss\+xml\" [^>]* href=\"(.*)\"/) do |match|
-       url = match.first
-    end
-
-    if url === nil
-      raise 'Couldn\'t retrieve episode list'
-    end
-
-    begin
-      page = Document.new(open(url))
-    rescue OpenURI::HTTPError => e
-      puts e.message
-      exit
-    end
-
-    episodes = Array.new
-
-    series = page.elements['rss/channel/title'].text
-
-    page.elements.each('rss/channel/item') do |e|
-      episode = Episode.new
-      episode.url = e.elements["link"].text
-      episode.title = e.elements["title"].text
-      episode.img = e.elements["enclosure"].attributes["url"]
-      episode.description = e.elements["description"].text
-      episode.dcDate = e.elements["dc:date"].text
-      episode.pubDate = e.elements["pubDate"].text
-      episodes.push episode
-    end
-
-    return series, episodes
-
-  end
-=end
 
   def Svt_play.getMediaUrl url
     begin
@@ -207,7 +142,6 @@ module Svt_play
   def Svt_play.search_series options, search_string
     begin
       page = Nokogiri::HTML(open("http://www.svtplay.se/xml/programmes.xml"))
-      #page = Nokogiri::HTML(open("http://www.svtplay.se/program/"))
     rescue OpenURI::HTTPError => e
       puts e.message
       exit
@@ -226,18 +160,5 @@ module Svt_play
 
     }
     programs
-
-=begin
-    objects = page.css("li[class~='play_js-filterable-item play_link-list__item']")
-
-    programs = Array.new
-    objects.each { |object|
-      s = Program.new
-      s.title = object.css('a').text
-      s.url = "http://www.svtplay.se#{object.css('a').first['href']}"
-      programs.push s
-    }
-    programs
-=end
   end
 end

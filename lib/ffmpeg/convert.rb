@@ -6,7 +6,7 @@ module FFMpeg
     attr_accessor :version, :total_time, :frame, :total_frames, :capturing,
                   :input_fps, :fps
 
-    @@timeout = 30
+    @@timeout = 60
     @started = false
     @completed = false
 
@@ -83,11 +83,12 @@ module FFMpeg
         [self.class.base_command, "-i", Shellwords.escape(@input), Shellwords.escape(@output), "-y"]
       end
 
-      @@timeout = 30
+      @@timeout = 60
       output = ""
       cmd = cmd.join(" ")
 
       begin
+        #puts cmd if @options[:verbose]
         Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
           @started = true
           begin
@@ -166,7 +167,8 @@ module FFMpeg
 
 
           rescue Timeout::Error => e
-            FFMPEG.logger.error "Process hung...\n@command\n#{@command}\nOutput\n#{@output}\n"
+            #FFMpeg.logger.error "Process hung...\n@command\n#{@command}\nOutput\n#{@output}\n"
+            puts "Process hung...\n@command\n#{@command}\nOutput\n#{@output}\n"
             raise Error, "Process hung. Full output: #{@output}"
           end
         end
